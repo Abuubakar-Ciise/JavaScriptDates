@@ -42,23 +42,19 @@ function calculateTotalTarget(startDateStr, endDateStr, annualRevenue = 5220) {
   
     let daysWorkedRemaining = daysWorkedExcludingFridays; 
     for (let i = 0; i < result.length; i++) {
-        const availableDays = Math.min(daysWorkedRemaining, result[i]);
-        let arr = [];
-        arr.push(availableDays); 
+        let availableDays = result[i];
         if (daysWorkedRemaining < result[i]) {
-            resultWorkDaysTotal.push(availableDays);
-            totalWorkDays += availableDays;
-        } else if(daysWorkedRemaining >= result[i]) {
-            resultWorkDaysTotal.push(availableDays);
-            totalWorkDays += availableDays;
+            availableDays = daysWorkedRemaining;
         }
+        resultWorkDaysTotal.push(availableDays);
+        totalWorkDays += availableDays;
         daysWorkedRemaining -= availableDays;
     }
     
     resultWorkDaysTotal[resultWorkDaysTotal.length - 1] = Math.round(resultWorkDaysTotal[resultWorkDaysTotal.length - 1]);
   
     let t = 0;
-    console.log(resultWorkDaysTotal)
+    // console.log(resultWorkDaysTotal)
     for(let i = 0; i < resultWorkDaysTotal.length; i++){
       monthlyTargets.push((annualRevenue / 12) / result[i] * resultWorkDaysTotal[i])
     }
@@ -71,7 +67,6 @@ function calculateTotalTarget(startDateStr, endDateStr, annualRevenue = 5220) {
         monthlyTargets: monthlyTargets,
         totalTarget: t
     };
-  }
+}
   
-  console.log(calculateTotalTarget('2024-01-1', '2024-12-31'));
-  
+console.log(calculateTotalTarget('2024-01-1', '2024-12-31'));
