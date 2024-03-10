@@ -1,8 +1,8 @@
 function calculateTotalTarget(startDateStr, endDateStr, annualRevenue = 5220) {
     const startDate = new Date(startDateStr);
     const endDate = new Date(endDateStr);
-    const result = [];
-    const resultWorkDaysTotal = [];
+    const daysExcludingFridays = [];
+    const daysWorkedExcludingFridays = [];
     const monthlyTargets = [];
   
     let totalWorkDays = 0;
@@ -22,7 +22,7 @@ function calculateTotalTarget(startDateStr, endDateStr, annualRevenue = 5220) {
             }
         }
   
-        result.push(daysInMonth);
+        daysExcludingFridays.push(daysInMonth);
         currentDate.setMonth(month + 1);
         currentDate.setDate(1);
     }
@@ -38,35 +38,38 @@ function calculateTotalTarget(startDateStr, endDateStr, annualRevenue = 5220) {
   
     const totalDays = (endDate - startDate) / (1000 * 60 * 60 * 24) + 1;
   
-    const daysWorkedExcludingFridays = totalDays - numFridays;
+    const daysWorkedExcluding = totalDays - numFridays;
   
-    let daysWorkedRemaining = daysWorkedExcludingFridays; 
-    for (let i = 0; i < result.length; i++) {
-        let availableDays = result[i];
-        if (daysWorkedRemaining < result[i]) {
-            availableDays = daysWorkedRemaining;
+    let daysWorkedRemaining = daysWorkedExcluding; 
+    for (let i = 0; i < daysExcludingFridays.length; i++) {
+        const availableDays = Math.min(daysExcludingFridays[i],daysWorkedRemaining);
+        if (daysWorkedRemaining < daysExcludingFridays[i]) {
+            daysWorkedExcludingFridays.push(availableDays);
+            totalWorkDays += availableDays;
+        } else if(daysWorkedRemaining >= daysExcludingFridays[i]) {
+            daysWorkedExcludingFridays.push(availableDays);
+            totalWorkDays += availableDays;
         }
-        resultWorkDaysTotal.push(availableDays);
-        totalWorkDays += availableDays;
         daysWorkedRemaining -= availableDays;
     }
     
-    resultWorkDaysTotal[resultWorkDaysTotal.length - 1] = Math.round(resultWorkDaysTotal[resultWorkDaysTotal.length - 1]);
+    daysWorkedExcludingFridays[daysWorkedExcludingFridays.length - 1] = Math.round(daysWorkedExcludingFridays[daysWorkedExcludingFridays.length - 1]);
   
     let t = 0;
     // console.log(resultWorkDaysTotal)
-    for(let i = 0; i < resultWorkDaysTotal.length; i++){
-      monthlyTargets.push((annualRevenue / 12) / result[i] * resultWorkDaysTotal[i])
+    for(let i = 0; i < daysWorkedExcludingFridays.length; i++){
+      monthlyTargets.push((annualRevenue / 12) / daysExcludingFridays[i] * daysWorkedExcludingFridays[i])
     }
     for(let i = 0; i < monthlyTargets.length; i++){
       t+= monthlyTargets[i]
     }
     return {
-        daysExcludingFridays: result,
-        daysWorkedExcludingFridays: resultWorkDaysTotal,
+        daysExcludingFridays: daysExcludingFridays,
+        daysWorkedExcludingFridays: daysWorkedExcludingFridays,
         monthlyTargets: monthlyTargets,
         totalTarget: t
     };
-}
+  }
   
-console.log(calculateTotalTarget('2024-01-1', '2024-12-31'));
+  console.log(calculateTotalTarget('2024-01-1', '2024-2-6'));
+  
